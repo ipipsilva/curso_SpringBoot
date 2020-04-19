@@ -15,6 +15,7 @@ import com.wallet.dto.UserDTO;
 import com.wallet.entity.User;
 import com.wallet.response.Response;
 import com.wallet.service.UserService;
+import com.wallet.util.Bcrypt;
 
 @RestController
 @RequestMapping("user")
@@ -41,10 +42,10 @@ public class UserController {
 	}
 
 	private User convertUserDtoToEntity(UserDTO usuarioDTO) {
-		return new User(usuarioDTO.getEmail(), usuarioDTO.getNome(), usuarioDTO.getSenha());
+		return new User(usuarioDTO.getEmail(), usuarioDTO.getNome(), Bcrypt.getHash(usuarioDTO.getSenha()));
 	}
 
 	private UserDTO convertEntityToDto(User usuario) {
-		return new UserDTO(usuario.getId(), usuario.getNome(), usuario.getEmail(), usuario.getSenha());
+		return new UserDTO(usuario.getId(), usuario.getNome(), usuario.getEmail(), null);
 	}
 }
