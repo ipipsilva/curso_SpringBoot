@@ -15,18 +15,29 @@ public class User implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -8838455987528466136L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@Column(nullable = false)
 	private String nome;
-	
+
 	private String email;
-	
+
 	@Column(nullable = false)
 	private String senha;
+
+	public User() {
+		super();
+	}
+
+	public User(String email, String nome, String senha) {
+		super();
+		this.email = email;
+		this.nome = nome;
+		this.senha = senha;
+	}
 
 	public Long getId() {
 		return id;
