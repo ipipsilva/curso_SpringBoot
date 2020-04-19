@@ -28,6 +28,11 @@ public class UserController {
 
 		Response<UserDTO> response = new Response<UserDTO>();
 
+		if (result.hasErrors()) {
+			result.getAllErrors().forEach(erro -> response.getErrors().add(erro.getDefaultMessage()));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+		}
+
 		User usuarioSalvo = userService.save(this.convertUserDtoToEntity(dto));
 
 		response.setData(this.convertEntityToDto(usuarioSalvo));

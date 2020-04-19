@@ -1,5 +1,6 @@
 package com.wallet.controller;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ public class UserControllerTest {
 	private static final String NOME = "Igor Silva";
 	private static final String EMAIL = "teste@teste.com.br";
 	private static final String URL = "/user";
+	private static final Long ID = 1l;
+	private static final String EMAIL_INVALIDO = "teste.com.br";
 
 	@MockBean
 	private UserService service;
@@ -42,19 +45,39 @@ public class UserControllerTest {
 		BDDMockito.given(service.save(Mockito.any(User.class))).willReturn(getMockUser());
 
 		// @formatter:off
-		 mvc.perform(MockMvcRequestBuilders.post(URL).content(getJsonPayload())
+		 mvc.perform(MockMvcRequestBuilders.post(URL).content(getJsonPayload(null, NOME, EMAIL, SENHA))
 				 .contentType(MediaType.APPLICATION_JSON)
 				 .accept(MediaType.APPLICATION_JSON))
-		 .andExpect(status().isCreated());
+		 .andExpect(status().isCreated())
+		 .andExpect(jsonPath("$.data.id").value(ID))
+		 .andExpect(jsonPath("$.data.nome").value(NOME))
+		 .andExpect(jsonPath("$.data.email").value(EMAIL))
+		 .andExpect(jsonPath("$.data.senha").value(SENHA));
+		// @formatter:on
+	}
+
+	@Test
+	public void testSaveInvalidUser() throws JsonProcessingException, Exception {
+
+		BDDMockito.given(service.save(Mockito.any(User.class))).willReturn(getMockUser());
+
+		// @formatter:off
+		 mvc.perform(MockMvcRequestBuilders.post(URL).content(getJsonPayload(null, NOME, EMAIL_INVALIDO, SENHA))
+				 .contentType(MediaType.APPLICATION_JSON)
+				 .accept(MediaType.APPLICATION_JSON))
+		 .andExpect(status().isBadRequest())
+		 .andExpect(jsonPath("$.errors[0]").value("E-mail invalido!"));
 		// @formatter:on
 	}
 
 	public User getMockUser() {
-		return new User(EMAIL, NOME, SENHA);
+		User user = new User(EMAIL, NOME, SENHA);
+		user.setId(ID);
+		return user;
 	}
 
-	public String getJsonPayload() throws JsonProcessingException {
-		UserDTO usuarioDTO = new UserDTO(EMAIL, NOME, SENHA);
+	public String getJsonPayload(Long id, String nome, String email, String senha) throws JsonProcessingException {
+		UserDTO usuarioDTO = new UserDTO(id, nome, email, senha);
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.writeValueAsString(usuarioDTO);
 	}
